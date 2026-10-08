@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Tech Troubleshooter</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #111827;
+        color: white;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 800px;
+        background: #1f2937;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 5px;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #9ca3af;
+        margin-bottom: 25px;
+    }
+
+    .stats {
+        display: flex;
+        justify-content: space-between;
+        background: #111827;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+
+    .case {
+        background: #374151;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    }
+
+    .case h2 {
+        margin-top: 0;
+    }
+
+    .symptom {
+        background: #111827;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 15px 0;
+        line-height: 1.6;
+    }
+
+    .choices button {
+        width: 100%;
+        padding: 15px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 10px;
+        background: #2563eb;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .choices button:hover {
+        background: #1d4ed8;
+        transform: translateY(-2px);
+    }
+
+    .correct {
+        background: #16a34a !important;
+    }
+
+    .wrong {
+        background: #dc2626 !important;
+    }
+
+    #message {
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+        min-height: 30px;
+        margin: 15px 0;
+    }
+
+    #nextButton,
+    #startButton {
+        display: block;
+        margin: 20px auto 0;
+        padding: 14px 30px;
+        border: none;
+        border-radius: 10px;
+        background: #f59e0b;
+        color: #111827;
+        font-size: 17px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    #nextButton:hover,
+    #startButton:hover {
+        background: #d97706;
+    }
+
+    #startScreen,
+    #gameScreen,
+    #resultScreen {
+        display: none;
+    }
+
+    #startScreen {
+        display: block;
+        text-align: center;
+    }
+
+    .big-icon {
+        font-size: 70px;
+    }
+
+    .result {
+        text-align: center;
+    }
+
+    .result h2 {
+        font-size: 32px;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .timer-warning {
+        color: #ef4444;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- START SCREEN -->
+    <div id="startScreen">
+
+        <div class="big-icon">🕵️‍♂️</div>
+
+        <h1>Tech Troubleshooter</h1>
+
+        <p class="subtitle">
+            Can you diagnose the problems and save the systems?
+        </p>
+
+        <p>
+            You will face <strong>10 technical problems</strong>.
+            Choose the best solution before time runs out.
+        </p>
+
+        <button id="startButton" onclick="startGame()">
+            🚀 Start Troubleshooting
+        </button>
+
+    </div>
+
+
+    <!-- GAME SCREEN -->
+    <div id="gameScreen">
+
+        <h1>🛠️ Tech Troubleshooter</h1>
+
+        <div class="stats">
+
+            <div>
+                Case:
+                <strong>
+                    <span id="caseNumber">1</span>/10
+                </strong>
+            </div>
+
+            <div>
+                Score:
+                <strong>
+                    <span id="score">0</span>
+                </strong>
+            </div>
+
+            <div>
+                Lives:
+                <strong>
+                    <span id="lives">❤️❤️❤️</span>
+                </strong>
+            </div>
+
+            <div>
+                Time:
+                <strong id="timer">20</strong>
+            </div>
+
+        </div>
+
+
+        <div class="case">
+
+            <h2 id="problemTitle">
+                Problem
+            </h2>
+
+            <div class="symptom">
+
+                <strong>🔍 Symptoms:</strong>
+
+                <p id="problemDescription"></p>
+
+            </div>
+
+            <div class="choices" id="choices"></div>
+
+        </div>
+
+        <div id="message"></div>
+
+        <button id="nextButton"
+                class="hidden"
+                onclick="nextQuestion()">
+            Next Case →
+        </button>
+
+    </div>
+
+
+    <!-- RESULT SCREEN -->
+    <div id="resultScreen">
+
+        <div class="result">
+
+            <div class="big-icon">🏆</div>
+
+            <h1>Investigation Complete!</h1>
+
+            <h2>
+                Score:
+                <span id="finalScore">0</span>
+            </h2>
+
+            <p id="finalMessage"></p>
+
+            <button id="startButton"
+                    onclick="startGame()">
+                🔄 Play Again
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const questions = [
+
+    {
+        title: "💻 Computer Won't Turn On",
+        description:
+        "The computer shows no lights, no fans, and the screen is completely black. What should you check FIRST?",
+
+        choices: [
+            "Reinstall Windows",
+            "Check the power cable and power outlet",
+            "Replace the RAM",
+            "Update the graphics driver"
+        ],
+
+        answer: 1
+    },
+
+
+    {
+        title: "🌐 Internet Not Working",
+        description:
+        "A user's computer cannot access any website, but other devices in the same house work normally. What should you check first?",
+
+        choices: [
+            "Replace the monitor",
+            "Check the computer's network connection",
+            "Install a new keyboard",
+            "Increase screen brightness"
+        ],
+
+        answer: 1
+    },
+
+
+    {
+        title: "🐌 Computer Is Very Slow",
+        description:
+        "The computer takes several minutes to start and programs open very slowly. Which is a sensible FIRST step?",
+
+        choices: [
+            "Check Task Manager for high CPU/RAM usage",
+            "Buy a new monitor",
+            "Change the mouse",
+            "Turn off the speakers"
+        ],
+
+        answer: 0
+    },
+
+
+    {
+        title: "🖨️ Printer Not Printing",
+        description:
+        "The printer is powered on but nothing prints. The computer says the printer is unavailable. What should you check?",
+
+        choices: [
+            "Check the printer's connection and status",
+            "Replace the computer screen",
+            "Change the desktop wallpaper",
+            "Increase the computer volume"
+        ],
+
+        answer: 0
+    },
+
+
+    {
+        title: "🔊 No Sound",
+        description:
+        "A video is playing but there is no sound. What should you check first?",
+
+        choices: [
+            "Check volume and mute settings",
+            "Replace the hard drive",
+            "Restart the router",
+            "Change the keyboard"
+        ],
+
+        answer: 0
+    },
+
+
+    {
+        title: "🔥 Computer Overheating",
+        description:
+        "The computer becomes extremely hot and suddenly shuts down during demanding tasks. What is a likely thing to inspect?",
+
+        choices: [
+            "Cooling fans and airflow",
+            "The wallpaper",
+            "The keyboard layout",
+            "The browser bookmarks"
+        ],
+
+        answer: 0
+    },
+
+
+    {
+        title: "🔐 Forgotten Password",
+        description:
+        "A user cannot remember their account password. What is the safest approach?",
+
+        choices: [
+            "Guess random passwords repeatedly",
+            "Use the official password recovery process",
+            "Delete system files",
+            "Disable security software"
+        ],
+
+        answer: 1
+    },
+
+
+    {
+        title: "💾 File Disappeared",
+        description:
+        "A user cannot find an important file they saved yesterday. What should you do FIRST?",
+
+        choices: [
+            "Immediately format the computer",
+            "Search the computer for the file",
+            "Delete the Downloads folder",
+            "Replace the motherboard"
+        ],
+
+        answer: 1
+    },
+
+
+    {
+        title: "🦠 Suspicious Computer Behavior",
+        description:
+        "A computer suddenly displays strange pop-ups and unknown programs appear. What should you do?",
+
+        choices: [
+            "Ignore everything",
+            "Run a trusted security/malware scan",
+            "Install random software",
+            "Share passwords with someone"
+        ],
+
+        answer: 1
+    },
+
+
+    {
+        title: "📱 Phone Won't Charge",
+        description:
+        "A phone does not appear to charge when connected. What should you check first?",
+
+        choices: [
+            "Check the charger, cable, and power source",
+            "Replace the phone's screen",
+            "Delete all photos",
+            "Change the wallpaper"
+        ],
+
+        answer: 0
+    }
+
+];
+
+
+let currentQuestion = 0;
+let score = 0;
+let lives = 3;
+let timeLeft = 20;
+let timer;
+let answered = false;
+
+
+function startGame() {
+
+    currentQuestion = 0;
+    score = 0;
+    lives = 3;
+
+    document.getElementById("startScreen")
+        .style.display = "none";
+
+    document.getElementById("resultScreen")
+        .style.display = "none";
+
+    document.getElementById("gameScreen")
+        .style.display = "block";
+
+    document.getElementById("score")
+        .textContent = score;
+
+    updateLives();
+
+    showQuestion();
+}
+
+
+function showQuestion() {
+
+    answered = false;
+
+    clearInterval(timer);
+
+    timeLeft = 20;
+
+    document.getElementById("timer")
+        .textContent = timeLeft;
+
+    document.getElementById("timer")
+        .classList.remove("timer-warning");
+
+    document.getElementById("nextButton")
+        .classList.add("hidden");
+
+    document.getElementById("message")
+        .textContent = "";
+
+    document.getElementById("caseNumber")
+        .textContent = currentQuestion + 1;
+
+
+    const question = questions[currentQuestion];
+
+
+    document.getElementById("problemTitle")
+        .textContent = question.title;
+
+    document.getElementById("problemDescription")
+        .textContent = question.description;
+
+
+    const choicesContainer =
+        document.getElementById("choices");
+
+    choicesContainer.innerHTML = "";
+
+
+    question.choices.forEach((choice, index) => {
+
+        const button =
+            document.createElement("button");
+
+        button.textContent =
+            String.fromCharCode(65 + index) +
+            ". " +
+            choice;
+
+        button.onclick =
+            function() {
+                checkAnswer(index, button);
+            };
+
+        choicesContainer.appendChild(button);
+
+    });
+
+
+    startTimer();
+}
+
+
+function startTimer() {
+
+    timer = setInterval(function() {
+
+        timeLeft--;
+
+        document.getElementById("timer")
+            .textContent = timeLeft;
+
+
+        if (timeLeft <= 5) {
+
+            document.getElementById("timer")
+                .classList.add("timer-warning");
+
+        }
+
+
+        if (timeLeft <= 0) {
+
+            clearInterval(timer);
+
+            timeUp();
+
+        }
+
+    }, 1000);
+
+}
+
+
+function checkAnswer(selected, button) {
+
+    if (answered) return;
+
+    answered = true;
+
+    clearInterval(timer);
+
+
+    const question = questions[currentQuestion];
+
+    const buttons =
+        document.querySelectorAll(".choices button");
+
+
+    buttons.forEach(b => {
+        b.disabled = true;
+    });
+
+
+    if (selected === question.answer) {
+
+        button.classList.add("correct");
+
+        score += 100 + timeLeft * 5;
+
+        document.getElementById("score")
+            .textContent = score;
+
+        document.getElementById("message")
+            .textContent =
+            "✅ Correct! Great troubleshooting!";
+
+    } else {
+
+        button.classList.add("wrong");
+
+        buttons[question.answer]
+            .classList.add("correct");
+
+        lives--;
+
+        updateLives();
+
+        document.getElementById("message")
+            .textContent =
+            "❌ Incorrect! The highlighted answer is the best choice.";
+
+        if (lives <= 0) {
+
+            setTimeout(endGame, 1500);
+
+            return;
+
+        }
+
+    }
+
+
+    document.getElementById("nextButton")
+        .classList.remove("hidden");
+
+}
+
+
+function timeUp() {
+
+    if (answered) return;
+
+    answered = true;
+
+    const question = questions[currentQuestion];
+
+    const buttons =
+        document.querySelectorAll(".choices button");
+
+
+    buttons.forEach(b => {
+        b.disabled = true;
+    });
+
+
+    buttons[question.answer]
+        .classList.add("correct");
+
+
+    lives--;
+
+    updateLives();
+
+
+    document.getElementById("message")
+        .textContent =
+        "⏰ Time's up! You lost a life.";
+
+
+    if (lives <= 0) {
+
+        setTimeout(endGame, 1500);
+
+    } else {
+
+        document.getElementById("nextButton")
+            .classList.remove("hidden");
+
+    }
+
+}
+
+
+function updateLives() {
+
+    let hearts = "";
+
+    for (let i = 0; i < lives; i++) {
+        hearts += "❤️";
+    }
+
+    if (lives === 0) {
+        hearts = "💔";
+    }
+
+    document.getElementById("lives")
+        .textContent = hearts;
+
+}
+
+
+function nextQuestion() {
+
+    currentQuestion++;
+
+    if (currentQuestion >= questions.length) {
+
+        endGame();
+
+    } else {
+
+        showQuestion();
+
+    }
+
+}
+
+
+function endGame() {
+
+    clearInterval(timer);
+
+    document.getElementById("gameScreen")
+        .style.display = "none";
+
+    document.getElementById("resultScreen")
+        .style.display = "block";
+
+    document.getElementById("finalScore")
+        .textContent = score;
+
+
+    let message;
+
+
+    if (score >= 1400) {
+
+        message =
+            "🏆 Master Troubleshooter! You have excellent diagnostic skills.";
+
+    } else if (score >= 900) {
+
+        message =
+            "🥇 Great job! You are becoming a strong troubleshooter.";
+
+    } else if (score >= 500) {
+
+        message =
+            "🥈 Good effort! Keep practicing your troubleshooting skills.";
+
+    } else {
+
+        message =
+            "🔧 Keep learning! Every problem is a chance to improve.";
+
+    }
+
+
+    document.getElementById("finalMessage")
+        .textContent = message;
+
+}
+
+</script>
+
+</body>
+</html>
