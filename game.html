@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Click the Target Game</title>
+
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        #game {
+            width: 600px;
+            height: 400px;
+            border: 3px solid black;
+            margin: 20px auto;
+            position: relative;
+            background-color: lightgray;
+        }
+
+        #target {
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+            display: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🎯 Click the Target</h1>
+
+    <p>Score: <span id="score">0</span></p>
+    <p>Time: <span id="time">30</span> seconds</p>
+
+    <button onclick="startGame()">Start Game</button>
+
+    <div id="game">
+        <div id="target" onclick="hitTarget()"></div>
+    </div>
+
+    <script>
+        let score = 0;
+        let time = 30;
+        let gameRunning = false;
+        let timer;
+
+        function startGame() {
+            score = 0;
+            time = 30;
+            gameRunning = true;
+
+            document.getElementById("score").textContent = score;
+            document.getElementById("time").textContent = time;
+
+            document.getElementById("target").style.display = "block";
+
+            moveTarget();
+
+            clearInterval(timer);
+
+            timer = setInterval(function() {
+                time--;
+
+                document.getElementById("time").textContent = time;
+
+                if (time <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function hitTarget() {
+            if (!gameRunning) return;
+
+            score++;
+            document.getElementById("score").textContent = score;
+
+            moveTarget();
+        }
+
+        function moveTarget() {
+            let game = document.getElementById("game");
+            let target = document.getElementById("target");
+
+            let maxX = game.clientWidth - target.clientWidth;
+            let maxY = game.clientHeight - target.clientHeight;
+
+            let x = Math.random() * maxX;
+            let y = Math.random() * maxY;
+
+            target.style.left = x + "px";
+            target.style.top = y + "px";
+        }
+
+        function endGame() {
+            gameRunning = false;
+
+            clearInterval(timer);
+
+            document.getElementById("target").style.display = "none";
+
+            alert("Game Over! Your score is: " + score);
+        }
+    </script>
+
+</body>
+</html>
